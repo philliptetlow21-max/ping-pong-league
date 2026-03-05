@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch {
+  } catch (err) {
+    console.error("Viewer login error:", err);
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
