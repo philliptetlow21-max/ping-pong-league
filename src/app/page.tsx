@@ -38,7 +38,7 @@ export default function Home() {
         />
       </div>
       <div className="bg-gray-900/50 rounded-xl border border-gray-800">
-        <LeagueTable standings={standings} />
+        <LeagueTable standings={standings} matches={matches} year={year} />
       </div>
     </div>
   );

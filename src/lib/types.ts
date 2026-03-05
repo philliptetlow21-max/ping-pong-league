@@ -67,8 +67,8 @@ export const PLAYERS = ["Phill", "Sean", "Brendan", "Leon"] as const;
 export type Player = (typeof PLAYERS)[number];
 
 export const PLAYER_COLORS: Record<string, string> = {
-  Phill: "#3b82f6",    // blue
-  Sean: "#ef4444",     // red
-  Brendan: "#22c55e",  // green
-  Leon: "#f59e0b",     // amber
+  Phill: "#f97316",    // orange
+  Sean: "#22c55e",     // green
+  Brendan: "#ef4444",  // red
+  Leon: "#3b82f6",     // blue
 };

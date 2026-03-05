@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Match, PLAYER_COLORS } from "@/lib/types";
 import { calculateMatchResult, isMatchComplete } from "@/lib/scoring";
+import { calculateHandicap } from "@/lib/handicap";
 
 interface MatchCardProps {
   match: Match;
   rowIndex: number;
   isAdmin: boolean;
   onUpdate?: () => void;
+  allMatches?: Match[];
 }
 
 export default function MatchCard({
@@ -16,7 +18,19 @@ export default function MatchCard({
   rowIndex,
   isAdmin,
   onUpdate,
+  allMatches = [],
 }: MatchCardProps) {
+  const handicapRecord = useMemo(() => {
+    const priorMatches = allMatches.filter((m) => m.year < match.year);
+    if (priorMatches.length === 0) return null;
+    const record = calculateHandicap(priorMatches, match.player1, match.player2);
+    return record.handicap > 0 ? record : null;
+  }, [allMatches, match.year, match.player1, match.player2]);
+
+  // Determine starting scores based on handicap
+  const p1Start = handicapRecord?.handicapFavour === match.player1 ? handicapRecord.handicap : 0;
+  const p2Start = handicapRecord?.handicapFavour === match.player2 ? handicapRecord.handicap : 0;
+
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [scores, setScores] = useState({
@@ -63,6 +77,21 @@ export default function MatchCard({
     }
   };
 
+  const handleStartEditing = () => {
+    if (handicapRecord && !complete) {
+      // Pre-fill empty game scores with handicap starting values
+      setScores((prev) => ({
+        p1Game1: prev.p1Game1 || (p1Start > 0 ? p1Start.toString() : ""),
+        p2Game1: prev.p2Game1 || (p2Start > 0 ? p2Start.toString() : ""),
+        p1Game2: prev.p1Game2 || (p1Start > 0 ? p1Start.toString() : ""),
+        p2Game2: prev.p2Game2 || (p2Start > 0 ? p2Start.toString() : ""),
+        p1Tiebreaker: prev.p1Tiebreaker,
+        p2Tiebreaker: prev.p2Tiebreaker,
+      }));
+    }
+    setEditing(true);
+  };
+
   const ScoreInput = ({
     value,
     field,
@@ -83,9 +112,16 @@ export default function MatchCard({
   return (
     <div className="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4 hover:border-gray-600/50 transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-gray-500">
-          Match #{match.matchNumber}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xs text-gray-500">
+            Match #{match.matchNumber}
+          </span>
+          {handicapRecord && (
+            <span className="text-[10px] text-amber-400/80">
+              Handicap: {handicapRecord.handicapFavour} +{handicapRecord.handicap}
+            </span>
+          )}
+        </div>
         {result && (
           <span
             className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -173,6 +209,12 @@ export default function MatchCard({
                 </div>
               )}
             </>
+          ) : handicapRecord ? (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-500 font-mono">{p1Start}</span>
+              <span className="text-gray-600">-</span>
+              <span className="text-gray-500 font-mono">{p2Start}</span>
+            </div>
           ) : (
             <span className="text-gray-600 text-sm">vs</span>
           )}
@@ -222,7 +264,7 @@ export default function MatchCard({
             </>
           ) : (
             <button
-              onClick={() => setEditing(true)}
+              onClick={handleStartEditing}
               className="text-xs text-gray-500 hover:text-emerald-400 transition-colors"
             >
               Edit scores

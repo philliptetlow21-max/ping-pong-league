@@ -4,6 +4,7 @@ import { useMatches } from "@/lib/useMatches";
 import { calculatePlayerStats } from "@/lib/stats";
 import { PLAYERS } from "@/lib/types";
 import StatsCard from "@/components/StatsCard";
+import PowerRankings from "@/components/PowerRankings";
 import SignInPrompt from "@/components/SignInPrompt";
 
 export default function StatsPage() {
@@ -28,6 +29,12 @@ export default function StatsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-white mb-6">All-Time Stats</h1>
+
+      <h2 className="text-lg font-semibold text-white mb-3">Power Rankings</h2>
+      <div className="mb-6">
+        <PowerRankings matches={matches} />
+      </div>
+
       {stats.every((s) => s.totalMatches === 0) ? (
         <div className="text-center text-gray-500 py-12">
           No match data yet.

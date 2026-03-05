@@ -82,6 +82,7 @@ export default function ResultsPage() {
               rowIndex={rowIndex}
               isAdmin={admin}
               onUpdate={refetch}
+              allMatches={matches}
             />
           ))}
         </div>

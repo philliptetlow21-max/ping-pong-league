@@ -1,12 +1,47 @@
 "use client";
 
-import { Standing, PLAYER_COLORS } from "@/lib/types";
+import { useMemo } from "react";
+import { Standing, Match, PLAYER_COLORS } from "@/lib/types";
+import { calculateMatchResult } from "@/lib/scoring";
 
 interface LeagueTableProps {
   standings: Standing[];
+  matches?: Match[];
+  year?: number;
 }
 
-export default function LeagueTable({ standings }: LeagueTableProps) {
+function getRecentForm(
+  matches: Match[],
+  year: number,
+  player: string,
+  count = 5
+): ("W" | "L")[] {
+  const playerMatches = matches
+    .filter(
+      (m) =>
+        m.year === year &&
+        (m.player1 === player || m.player2 === player)
+    )
+    .sort((a, b) => a.matchNumber - b.matchNumber);
+
+  const form: ("W" | "L")[] = [];
+  for (const match of playerMatches) {
+    const result = calculateMatchResult(match);
+    if (!result) continue;
+    form.push(result.winner === player ? "W" : "L");
+  }
+  return form.slice(-count);
+}
+
+export default function LeagueTable({ standings, matches, year }: LeagueTableProps) {
+  const formMap = useMemo(() => {
+    if (!matches || !year) return {};
+    const map: Record<string, ("W" | "L")[]> = {};
+    for (const s of standings) {
+      map[s.player] = getRecentForm(matches, year, s.player);
+    }
+    return map;
+  }, [matches, year, standings]);
   if (standings.length === 0) {
     return (
       <div className="text-center text-gray-500 py-12">
@@ -27,6 +62,7 @@ export default function LeagueTable({ standings }: LeagueTableProps) {
             <th className="text-center py-3 px-4">L</th>
             <th className="text-center py-3 px-4">GD</th>
             <th className="text-center py-3 px-4 font-bold text-emerald-400">Pts</th>
+            {matches && <th className="text-center py-3 px-4">Form</th>}
           </tr>
         </thead>
         <tbody>
@@ -77,6 +113,24 @@ export default function LeagueTable({ standings }: LeagueTableProps) {
                     {standing.points}
                   </span>
                 </td>
+                {matches && (
+                  <td className="text-center py-4 px-4">
+                    <div className="flex items-center justify-center gap-1">
+                      {(formMap[standing.player] || []).map((r, fi) => (
+                        <span
+                          key={fi}
+                          className={`inline-block w-5 h-5 rounded-full text-[10px] font-bold leading-5 text-center ${
+                            r === "W"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {r}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}
