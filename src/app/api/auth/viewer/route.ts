@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createViewerCookie, COOKIE_NAME } from "@/lib/viewer-auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const MAX_ATTEMPTS = 5;
