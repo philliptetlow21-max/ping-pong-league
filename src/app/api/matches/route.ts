@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions, isAdmin } from "@/lib/auth";
-import { readSheetRange, appendSheetRow, updateSheetRange } from "@/lib/sheets";
+import { readSheetRangePublic, appendSheetRow, updateSheetRange } from "@/lib/sheets";
+import { isViewerAuthenticated } from "@/lib/viewer-auth";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  const isViewer = await isViewerAuthenticated();
+
+  if (!session && !isViewer) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   try {
-    const rows = await readSheetRange(session.accessToken, "Matches!A2:J");
+    const rows = await readSheetRangePublic("Matches!A2:J");
     return NextResponse.json({ matches: rows });
   } catch (error) {
     console.error("Failed to fetch matches:", error);

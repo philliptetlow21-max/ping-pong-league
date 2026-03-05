@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 const links = [
@@ -13,7 +13,14 @@ const links = [
 
 export default function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
+
+  async function handleViewerSignOut() {
+    await fetch("/api/auth/viewer/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <nav className="bg-gray-900 border-b border-gray-800">
@@ -38,7 +45,7 @@ export default function Nav() {
             ))}
           </div>
         </div>
-        <div>
+        <div className="flex items-center gap-3">
           {session ? (
             <button
               onClick={() => signOut()}
@@ -47,12 +54,20 @@ export default function Nav() {
               Sign out
             </button>
           ) : (
-            <button
-              onClick={() => signIn("google")}
-              className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-            >
-              Admin Login
-            </button>
+            <>
+              <button
+                onClick={() => signIn("google")}
+                className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+              >
+                Admin Login
+              </button>
+              <button
+                onClick={handleViewerSignOut}
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                Sign out
+              </button>
+            </>
           )}
         </div>
       </div>

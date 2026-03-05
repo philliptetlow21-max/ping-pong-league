@@ -15,8 +15,7 @@ export function useMatches() {
       const res = await fetch("/api/matches");
       if (!res.ok) {
         if (res.status === 401) {
-          setError("sign-in");
-          setLoading(false);
+          window.location.href = "/login";
           return;
         }
         throw new Error("Failed to fetch");

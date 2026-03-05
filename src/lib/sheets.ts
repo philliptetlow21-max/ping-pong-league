@@ -19,6 +19,27 @@ export async function readSheetRange(
   return data.values ?? [];
 }
 
+export async function readSheetRangePublic(
+  range: string
+): Promise<string[][]> {
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    throw new Error("GOOGLE_API_KEY is not configured");
+  }
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API error ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  return data.values ?? [];
+}
+
 export async function appendSheetRow(
   accessToken: string,
   range: string,

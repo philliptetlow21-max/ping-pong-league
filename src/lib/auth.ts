@@ -73,6 +73,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  pages: {
+    signIn: "/login",
+  },
 };
 
 export function isAdmin(email: string | null | undefined): boolean {
