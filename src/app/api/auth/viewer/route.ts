@@ -63,8 +63,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("Viewer login error:", message, err);
-    return NextResponse.json({ error: "Invalid request", detail: message }, { status: 400 });
+    console.error("Viewer login error:", err);
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
