@@ -73,61 +73,6 @@ export default function HeadToHeadPage() {
       </div>
 
       <HeadToHead record={record} />
-
-      {/* Individual match results */}
-      {record.matches.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Match History
-          </h2>
-          <div className="space-y-2">
-            {record.matches
-              .sort(
-                (a, b) =>
-                  b.match.year - a.match.year ||
-                  b.match.matchNumber - a.match.matchNumber
-              )
-              .map((result, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-800/30 rounded-lg p-3 flex items-center justify-between text-sm"
-                >
-                  <span className="text-gray-500">{result.match.year}</span>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={
-                        result.winner === player1
-                          ? "text-white font-semibold"
-                          : "text-gray-500"
-                      }
-                    >
-                      {player1}
-                    </span>
-                    <span className="text-gray-600">{result.scoreline}</span>
-                    <span
-                      className={
-                        result.winner === player2
-                          ? "text-white font-semibold"
-                          : "text-gray-500"
-                      }
-                    >
-                      {player2}
-                    </span>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      result.scoreline === "2-0"
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "bg-amber-500/20 text-amber-400"
-                    }`}
-                  >
-                    {result.scoreline}
-                  </span>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
