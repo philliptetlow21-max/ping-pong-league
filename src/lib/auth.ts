@@ -48,9 +48,13 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 365 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
+    async signIn({ user }) {
+      if (!ADMIN_EMAIL) return true;
+      return user.email === ADMIN_EMAIL;
+    },
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
